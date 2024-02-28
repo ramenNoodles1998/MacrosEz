@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Macros Ez</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://unpkg.com/htmx.org@1.9.10"
+      integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body id="body" class="container mx-auto bg-fuchsia-300">
+    <form class="grid grid-cols-3 gap-2 grid-row-3" hx-post="/submit" hx-target="#body">
+      <label for="protein">Protein</label>
+      <label for="carbs">Carbs</label>
+      <label for="fat">Fat</label>
+      <input id="protein" name="protein" type="text">
+      <input id="carbs" name="carbs" type="text">
+      <input id="fat" name="fat" type="text">
+      <button type="submit">Submit</button>
+    </form>
+    <div >
+      {{template "totals" .}}
+    </div>
+  </body>
+</html>
