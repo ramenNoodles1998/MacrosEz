@@ -1,6 +1,8 @@
 {{ define "form"}}
 <form
-  class="grid grid-cols-9 gap-2 grid-row-3 p-2"
+    class="grid grid-cols-9 gap-2 grid-row-3 p-2"
+    hx-post="/submit"
+    hx-target="#body"
 >
   <label class="block font-bold mb-2 col-span-3" for="protein">Protein</label>
   <label class="block font-bold mb-2 col-span-3" for="carbs">Carbs</label>
@@ -11,11 +13,9 @@
     id="protein"
     name="protein"
   />
-  <button
+  <button 
     class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
-    hx-post="/submit?id=protein"
-    hx-trigger="click"
-    hx-target="#protein"
+    type="submit"
   >
     Add
   </button>
@@ -25,11 +25,9 @@
     id="carbs"
     name="carbs"
   />
-  <button
+  <button 
     class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
-    hx-post="/submit?id=carbs"
-    hx-trigger="click"
-    hx-target="#carbs"
+    type="submit"
   >
     Add
   </button>
@@ -42,9 +40,6 @@
   <button
     class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
     type="submit"
-    hx-post="/submit?id=fat"
-    hx-trigger="click"
-    hx-target="#fat"
   >
     Add
   </button>

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	"strings"
 
 	// "github.com/google/uuid"
 	"github.com/aws/aws-sdk-go/aws"
@@ -47,8 +46,10 @@ func main() {
 		Region: aws.String("us-east-1"),
 	},)
 	svc := dynamodb.New(sess)
+	
+	initData(svc)
 
-	data["Logs"] = getLogs(svc)
+	//do this for calories and macros.
 
 	var temp *template.Template = template.Must(template.ParseGlob("./template/*.html"))
 	//TODO: add add all button
@@ -57,49 +58,57 @@ func main() {
 	//70s Macros title
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		temp.ExecuteTemplate(w, "index.html", data)
+		temp.ExecuteTemplate(w, "index.html" ,data)
 	})
 
 	http.HandleFunc("/submit", func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
-		id := r.URL.Query().Get("id")
-
-		macro, _ := strconv.ParseFloat(r.Form[id][0], 64)
-		saveLog(svc, macro, id)
-		var multiplier float64 = 4.0
-		if(id == "fat") {
-			multiplier = 9.0
-		}
-
-		var capitalizedId = strings.Title(id)
-		var savedMacro = data[capitalizedId].(float64)
+		fmt.Printf("%s\n", r.Form["fat"])
+		protein, _ := strconv.ParseFloat(r.Form["protein"][0], 64)
+		carbs, _ := strconv.ParseFloat(r.Form["carbs"][0], 64)
+		fat, _ := strconv.ParseFloat(r.Form["fat"][0], 64)
+		saveLog(svc, protein, carbs, fat) 
 
 		data = map[string]interface{}{
-			"Protein": 0.0,
-			"Carbs": 0.0,
-			"Fat": 0.0,
-			"Calories": data["Calories"].(float64) + macro * multiplier,
+			"Protein": data["Protein"].(float64) + protein,
+			"Carbs": data["Carbs"].(float64) + carbs,
+			"Fat": data["Fat"].(float64) + fat,
+			"Calories": data["Calories"].(float64) + (protein * 4) + (carbs * 4) + (fat * 9),
 			"Logs": getLogs(svc),
 		}
-		data[capitalizedId] = savedMacro + macro
 
-		temp.ExecuteTemplate(w, id + ".html", data)
+		temp.ExecuteTemplate(w, "index.html", data)
 	})
 
 	http.ListenAndServe(":8080", nil)
 }
 
-func saveLog(svc *dynamodb.DynamoDB, macro float64, Id string) {
+func initData(svc *dynamodb.DynamoDB) {
+	logs := getLogs(svc)
+	var protein float64
+	var carbs float64
+	var fat float64
+
+	for i := range logs {
+		protein += logs[i].Protein
+		carbs += logs[i].Carbs
+		fat += logs[i].Fat
+	}
+
+	data["Protein"] = protein
+	data["Carbs"] = carbs 
+	data["Fat"] = fat 
+	data["Calories"] = (protein * 4) + (carbs * 4) + (fat * 9)
+	data["Logs"] = logs 
+}
+
+func saveLog(svc *dynamodb.DynamoDB, protein float64, carbs float64, fat float64) {
 	log := Log{
+		Protein: protein,
+		Carbs: carbs,
+		Fat: fat,
 		PartitionKey: uuidRoman,
 		SortKey: time.Now().String(),
-	}
-	if (Id == "protein") {
-		log.Protein = macro
-	} else if (Id == "carbs") {
-		log.Carbs = macro
-	} else {
-		log.Fat = macro
 	}
 
 	av, err := dynamodbattribute.MarshalMap(log)

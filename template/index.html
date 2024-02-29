@@ -24,20 +24,20 @@
       }
     </style>
   </head>
-  <body class="container mx-auto bg-teal-700 work-sans text-white">
+  <body class="container mx-auto bg-teal-700 work-sans text-white" id="body">
     <h1 class="p-3 font-bold">MACROS</h1>
     <div class="m-2 p-4 bg-slate-500 rounded-lg shadow-lg">
       <div class="grid grid-cols-3 gap-2 p-2">
-        <h2 id="protein">Total {{ .Protein }}g</h2>
-        <h2 id="carbs">Total {{ .Carbs }}g</h2>
-        <h2 id="fat">Total {{ .Fat }}g</h2>
+        <h2>Total {{ .Protein }}g</h2>
+        <h2>Total {{ .Carbs }}g</h2>
+        <h2>Total {{ .Fat }}g</h2>
         <h2>Total Calories {{ .Calories }}cal</h2>
       </div>
 
       {{ template "form" . }}
 
-      {{ if .Logs }}
       <div class="grid grid-cols-6 gap-2 p-2">
+        {{ if .Logs }}
         <div class="grid grid-cols-subgrid col-span-3 gap-2">
           <h2 class="col-span-3 font-bold">Logs</h2>
           {{ range .Logs }}
@@ -46,6 +46,7 @@
             <h2>Fat {{ .Fat }}g</h2>
           {{ end }}
         </div>
+        {{ end }}
         <div class="grid grid-cols-subgrid col-span-3 gap-2">
           <h2 class="col-span-3 font-bold">Food Items</h2>
           <h2>Protein 0g</h2>
@@ -54,7 +55,6 @@
         </div>
       </body>
       </div>
-      {{ end }}
     </body>
   </div>
 </html>
