@@ -11,18 +11,45 @@
       crossorigin="anonymous"
     ></script>
   </head>
-  <body id="body" class="container mx-auto bg-fuchsia-300">
-    <form class="grid grid-cols-3 gap-2 grid-row-3" hx-post="/submit" hx-target="#body">
-      <label for="protein">Protein</label>
-      <label for="carbs">Carbs</label>
-      <label for="fat">Fat</label>
-      <input id="protein" name="protein" type="text">
-      <input id="carbs" name="carbs" type="text">
-      <input id="fat" name="fat" type="text">
-      <button type="submit">Submit</button>
+  <body class="container mx-auto bg-fuchsia-300" id="body">
+    <form
+      class="grid grid-cols-6 gap-2 grid-row-3 p-2"
+      hx-post="/submit"
+      hx-target="#body"
+    >
+      <label for="protein" class="col-span-2">Protein</label>
+      <label for="carbs" class="col-span-2">Carbs</label>
+      <label for="fat" class="col-span-2">Fat</label>
+      <input
+        id="protein"
+        name="protein"
+        type="number"
+        onfocus="this.value=''"
+        value="{{ .ProteinValue }}"
+      />
+      <button type="submit">Add</button>
+      <input
+        id="carbs"
+        name="carbs"
+        type="number"
+        onfocus="this.value=''"
+        value="{{ .CarbsValue }}"
+      />
+      <button type="submit">Add</button>
+      <input
+        id="fat"
+        name="fat"
+        type="number"
+        onfocus="this.value=''"
+        value="{{ .FatValue }}"
+      />
+      <button type="submit">Add</button>
     </form>
-    <div >
-      {{template "totals" .}}
+    <div class="p-3">
+      <h1>Total Protein: {{ .Protein }}</h1>
+      <h1>Total Carbs: {{ .Carbs }}</h1>
+      <h1>Total Fat: {{ .Fat }}</h1>
+      <h1>Total Calories: {{ .Calories }}</h1>
     </div>
   </body>
 </html>

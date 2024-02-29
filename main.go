@@ -15,6 +15,10 @@ func main() {
 		"Protein": 0.0,
 		"Carbs": 0.0,
 		"Fat": 0.0,
+		"Calories": 0.0,
+		"ProteinValue": 0.0,
+		"CarbsValue": 0.0,
+		"FatValue": 0.0,
 	}
 		
 
@@ -28,10 +32,17 @@ func main() {
 		protein, _ := strconv.ParseFloat(r.Form["protein"][0], 64)
 		carbs, _ := strconv.ParseFloat(r.Form["carbs"][0], 64)
 		fat, _ := strconv.ParseFloat(r.Form["fat"][0], 64)
-		data["Protein"] += protein * 4
-		data["Carbs"] += carbs * 4
-		data["Fat"] += fat * 9
+		//TODO: save log here
 
+		data = map[string]float64{
+			"Protein": data["Protein"] + protein,
+			"Carbs": data["Carbs"] + carbs,
+			"Fat": data["Fat"] + fat,
+			"Calories": data["Calories"] + (protein * 4) + (carbs * 4) + (fat * 9),
+			"ProteinValue": 0.0,
+			"CarbsValue": 0.0,
+			"FatValue": 0.0,
+		}
 		temp.Execute(w, data)
 	})
 
