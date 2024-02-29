@@ -24,41 +24,15 @@ type Log struct{
 	Fat float64
 }
 
+var tableName string = "dev-macros"
+
 func main() {
 	fmt.Println("hello world")
-	var logs [0]Log
 
 	sess, _ := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1"),
 	},)
 	svc := dynamodb.New(sess)
-
-	log := Log{
-		PartitionKey: uuid.New().String(),
-		SortKey: time.Now().String(),
-		Protein: 5.0,
-		Carbs: 5.0,
-		Fat: 5.0,
-	}
-
-	av, err := dynamodbattribute.MarshalMap(log)
-	if err != nil {
-		fmt.Printf("Got error marshalling new movie item: %s", err)
-		return
-	}
-
-	tableName := "dev-macros"
-
-	input := &dynamodb.PutItemInput{
-		Item: av,
-		TableName: aws.String(tableName),
-	}
-
-	_, err = svc.PutItem(input)
-	if err != nil {
-		fmt.Printf("Got error calling PutItem: %s", err)
-		return
-	}
 
 	var temp *template.Template = template.Must(template.ParseGlob("./template/*.html"))
 	var data = map[string]interface{}{
@@ -69,7 +43,7 @@ func main() {
 		"ProteinValue": 0.0,
 		"CarbsValue": 0.0,
 		"FatValue": 0.0,
-		"Logs": logs,
+		"Logs": getLogs(svc),
 	}
 	//TODO: add add all button
 	//h1 logs remove if no logs
@@ -86,7 +60,9 @@ func main() {
 		protein, _ := strconv.ParseFloat(r.Form["protein"][0], 64)
 		carbs, _ := strconv.ParseFloat(r.Form["carbs"][0], 64)
 		fat, _ := strconv.ParseFloat(r.Form["fat"][0], 64)
-		//TODO: save log here
+
+		saveLog(svc, protein, carbs, fat)
+
 		data = map[string]interface{}{
 			"Protein": data["Protein"].(float64) + protein,
 			"Carbs": data["Carbs"].(float64) + carbs,
@@ -95,7 +71,7 @@ func main() {
 			"ProteinValue": 0.0,
 			"CarbsValue": 0.0,
 			"FatValue": 0.0,
-			"Logs": getLogs(),
+			"Logs": getLogs(svc),
 		}
 		temp.Execute(w, data)
 	})
@@ -103,6 +79,67 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-func getLogs() []Log {
-	return []Log {{ Protein: 0, Carbs: 0, Fat: 0,}}
+func saveLog(svc *dynamodb.DynamoDB, protein float64, carbs float64, fat float64) {
+	log := Log{
+		PartitionKey: uuid.New().String(),
+		SortKey: time.Now().String(),
+		Protein: protein,
+		Carbs: carbs,
+		Fat: fat,
+	}
+
+	av, err := dynamodbattribute.MarshalMap(log)
+	if err != nil {
+		fmt.Printf("Got error marshalling new movie item: %s", err)
+		return
+	}
+
+
+	input := &dynamodb.PutItemInput{
+		Item: av,
+		TableName: aws.String(tableName),
+	}
+
+	_, err = svc.PutItem(input)
+
+	if err != nil {
+		fmt.Printf("Got error calling PutItem: %s", err)
+		return
+	}
+}
+
+func getLogs(svc *dynamodb.DynamoDB) []Log {
+	//get todays logs.
+	result, err := svc.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"PartitionKey": {
+				S: aws.String("90049e1c-54a2-4d4b-9dfb-dd0166c7bbbb"),
+			},
+			"SortKey": {
+				S: aws.String("2024-02-29 11:11:00.8323678 -0700 MST m=+0.005003501"),
+			},
+		},
+	})
+
+	if err != nil {
+		fmt.Printf("Got error calling GetItem: %s", err)
+		return []Log{}
+	}
+
+	if result.Item == nil {
+		fmt.Printf("Could not find Logs")
+		return []Log{}
+	}
+    
+	item := Log{}
+
+	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+	}
+
+	fmt.Printf("sending log back %s", item.PartitionKey)
+
+	return []Log { item }
 }
