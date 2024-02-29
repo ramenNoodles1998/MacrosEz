@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"strings"
 
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -24,68 +25,81 @@ type Log struct{
 	Fat float64
 }
 
-var tableName string = "dev-macros"
+const tableName string = "dev-macros"
+const (
+    YYYYMMDD = "2006-01-02"
+)
+//uuid.New().String()
+const uuidRoman string = "123123"
+
+var data = map[string]interface{}{
+	"Protein": 0.0,
+	"Carbs": 0.0,
+	"Fat": 0.0,
+	"Calories": 0.0,
+	"Logs": []Log{},
+}
 
 func main() {
-	fmt.Println("hello world")
+	fmt.Println("running main")
 
 	sess, _ := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1"),
 	},)
 	svc := dynamodb.New(sess)
 
+	data["Logs"] = getLogs(svc)
+
 	var temp *template.Template = template.Must(template.ParseGlob("./template/*.html"))
-	var data = map[string]interface{}{
-		"Protein": 0.0,
-		"Carbs": 0.0,
-		"Fat": 0.0,
-		"Calories": 0.0,
-		"ProteinValue": 0.0,
-		"CarbsValue": 0.0,
-		"FatValue": 0.0,
-		"Logs": getLogs(svc),
-	}
 	//TODO: add add all button
 	//h1 logs remove if no logs
 	//add saving logs and deleting.
 	//70s Macros title
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		temp.Execute(w, data)
+		temp.ExecuteTemplate(w, "index.html", data)
 	})
-
 
 	http.HandleFunc("/submit", func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
-		protein, _ := strconv.ParseFloat(r.Form["protein"][0], 64)
-		carbs, _ := strconv.ParseFloat(r.Form["carbs"][0], 64)
-		fat, _ := strconv.ParseFloat(r.Form["fat"][0], 64)
+		id := r.URL.Query().Get("id")
 
-		saveLog(svc, protein, carbs, fat)
+		macro, _ := strconv.ParseFloat(r.Form[id][0], 64)
+		saveLog(svc, macro, id)
+		var multiplier float64 = 4.0
+		if(id == "fat") {
+			multiplier = 9.0
+		}
+
+		var capitalizedId = strings.Title(id)
+		var savedMacro = data[capitalizedId].(float64)
 
 		data = map[string]interface{}{
-			"Protein": data["Protein"].(float64) + protein,
-			"Carbs": data["Carbs"].(float64) + carbs,
-			"Fat": data["Fat"].(float64) + fat,
-			"Calories": data["Calories"].(float64) + (protein * 4) + (carbs * 4) + (fat * 9),
-			"ProteinValue": 0.0,
-			"CarbsValue": 0.0,
-			"FatValue": 0.0,
+			"Protein": 0.0,
+			"Carbs": 0.0,
+			"Fat": 0.0,
+			"Calories": data["Calories"].(float64) + macro * multiplier,
 			"Logs": getLogs(svc),
 		}
-		temp.Execute(w, data)
+		data[capitalizedId] = savedMacro + macro
+
+		temp.ExecuteTemplate(w, id + ".html", data)
 	})
 
 	http.ListenAndServe(":8080", nil)
 }
 
-func saveLog(svc *dynamodb.DynamoDB, protein float64, carbs float64, fat float64) {
+func saveLog(svc *dynamodb.DynamoDB, macro float64, Id string) {
 	log := Log{
-		PartitionKey: uuid.New().String(),
+		PartitionKey: uuidRoman,
 		SortKey: time.Now().String(),
-		Protein: protein,
-		Carbs: carbs,
-		Fat: fat,
+	}
+	if (Id == "protein") {
+		log.Protein = macro
+	} else if (Id == "carbs") {
+		log.Carbs = macro
+	} else {
+		log.Fat = macro
 	}
 
 	av, err := dynamodbattribute.MarshalMap(log)
@@ -93,7 +107,6 @@ func saveLog(svc *dynamodb.DynamoDB, protein float64, carbs float64, fat float64
 		fmt.Printf("Got error marshalling new movie item: %s", err)
 		return
 	}
-
 
 	input := &dynamodb.PutItemInput{
 		Item: av,
@@ -110,14 +123,24 @@ func saveLog(svc *dynamodb.DynamoDB, protein float64, carbs float64, fat float64
 
 func getLogs(svc *dynamodb.DynamoDB) []Log {
 	//get todays logs.
-	result, err := svc.GetItem(&dynamodb.GetItemInput{
+	result, err := svc.Query(&dynamodb.QueryInput{
 		TableName: aws.String(tableName),
-		Key: map[string]*dynamodb.AttributeValue{
+		KeyConditions: map[string]*dynamodb.Condition{
 			"PartitionKey": {
-				S: aws.String("90049e1c-54a2-4d4b-9dfb-dd0166c7bbbb"),
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dynamodb.AttributeValue {
+					{
+						S: aws.String(uuidRoman),
+					},
+				},
 			},
 			"SortKey": {
-				S: aws.String("2024-02-29 11:11:00.8323678 -0700 MST m=+0.005003501"),
+				ComparisonOperator: aws.String("BEGINS_WITH"),
+				AttributeValueList: []*dynamodb.AttributeValue {
+					{
+						S: aws.String(time.Now().UTC().Format(YYYYMMDD)),
+					},
+				},
 			},
 		},
 	})
@@ -127,19 +150,21 @@ func getLogs(svc *dynamodb.DynamoDB) []Log {
 		return []Log{}
 	}
 
-	if result.Item == nil {
+	if result.Items == nil {
 		fmt.Printf("Could not find Logs")
 		return []Log{}
 	}
     
-	item := Log{}
+	logs := []Log{}
 
-	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+	for _, item := range result.Items {
+		log := Log{}
+		err = dynamodbattribute.UnmarshalMap(item, &log)
+		logs = append(logs, log)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to unmarshal Record, %v", err))
+		}
 	}
 
-	fmt.Printf("sending log back %s", item.PartitionKey)
-
-	return []Log { item }
+	return logs 
 }

@@ -24,67 +24,37 @@
       }
     </style>
   </head>
-  <body class="container mx-auto bg-teal-700 work-sans text-white" id="body">
+  <body class="container mx-auto bg-teal-700 work-sans text-white">
+    <h1 class="p-3 font-bold">MACROS</h1>
     <div class="m-2 p-4 bg-slate-500 rounded-lg shadow-lg">
-      <form
-        class="grid grid-cols-9 gap-2 grid-row-3 p-2"
-        hx-post="/submit"
-        hx-target="#body"
-      >
-        <label class="block font-bold mb-2 col-span-3" for="protein">Protein</label>
-        <label class="block font-bold mb-2 col-span-3" for="carbs">Carbs</label>
-        <label class="block font-bold mb-2 col-span-3" for="fat">Fat</label>
-        <input
-          class="col-span-2 block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          id="protein"
-          name="protein"
-          onfocus="this.value=''"
-          value="{{ .ProteinValue }}"
-        />
-        <button class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full" type="submit">
-          Add
-          <i class="fa-circle-plus"></i>
-        </button>
-        <input
-          class="col-span-2 block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          id="carbs"
-          name="carbs"
-          onfocus="this.value=''"
-          value="{{ .CarbsValue }}"
-        />
-        <button class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full" type="submit">
-          Add
-          <i class="fa-circle-plus"></i>
-        </button>
-        <input
-          class="col-span-2 block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          id="fat"
-          name="fat"
-          onfocus="this.value=''"
-          value="{{ .FatValue }}"
-        />
-        <button class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full" type="submit">
-          Add
-          <i class="fa-thin fa-circle-plus"></i>
-        </button>
-      </form>
       <div class="grid grid-cols-3 gap-2 p-2">
-        <h1>Total {{ .Protein }}g</h1>
-        <h1>Total {{ .Carbs }}g</h1>
-        <h1>Total {{ .Fat }}g</h1>
-        <h1 class="col-span-3 text-center">Total Calories {{ .Calories }}cal</h1>
+        <h2 id="protein">Total {{ .Protein }}g</h2>
+        <h2 id="carbs">Total {{ .Carbs }}g</h2>
+        <h2 id="fat">Total {{ .Fat }}g</h2>
+        <h2>Total Calories {{ .Calories }}cal</h2>
       </div>
 
+      {{ template "form" . }}
+
       {{ if .Logs }}
-      <div class="grid grid-cols-3 gap-2 p-2">
-        <h1 class="col-span-3 text-center">Logs</h1>
-        {{ range .Logs }}
-        <h1>Protein: {{ .Protein }}</h1>
-        <h1>Carbs: {{ .Carbs }}</h1>
-        <h1>Fat: {{ .Fat }}</h1>
-        {{ end }}
+      <div class="grid grid-cols-6 gap-2 p-2">
+        <div class="grid grid-cols-subgrid col-span-3 gap-2">
+          <h2 class="col-span-3 font-bold">Logs</h2>
+          {{ range .Logs }}
+            <h2>Protein {{ .Protein }}g</h2>
+            <h2>Carbs {{ .Carbs }}g</h2>
+            <h2>Fat {{ .Fat }}g</h2>
+          {{ end }}
+        </div>
+        <div class="grid grid-cols-subgrid col-span-3 gap-2">
+          <h2 class="col-span-3 font-bold">Food Items</h2>
+          <h2>Protein 0g</h2>
+          <h2>Carbs 0g</h2>
+          <h2>Fat 0g</h2>
+        </div>
       </body>
       </div>
       {{ end }}
+    </body>
   </div>
 </html>
