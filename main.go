@@ -5,9 +5,20 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 type Log struct{
+	//uuid
+	PartitionKey string
+	//Date
+	SortKey string
 	Protein float64 
 	Carbs float64
 	Fat float64
@@ -16,6 +27,38 @@ type Log struct{
 func main() {
 	fmt.Println("hello world")
 	var logs [0]Log
+
+	sess, _ := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-1"),
+	},)
+	svc := dynamodb.New(sess)
+
+	log := Log{
+		PartitionKey: uuid.New().String(),
+		SortKey: time.Now().String(),
+		Protein: 5.0,
+		Carbs: 5.0,
+		Fat: 5.0,
+	}
+
+	av, err := dynamodbattribute.MarshalMap(log)
+	if err != nil {
+		fmt.Printf("Got error marshalling new movie item: %s", err)
+		return
+	}
+
+	tableName := "dev-macros"
+
+	input := &dynamodb.PutItemInput{
+		Item: av,
+		TableName: aws.String(tableName),
+	}
+
+	_, err = svc.PutItem(input)
+	if err != nil {
+		fmt.Printf("Got error calling PutItem: %s", err)
+		return
+	}
 
 	var temp *template.Template = template.Must(template.ParseGlob("./template/*.html"))
 	var data = map[string]interface{}{
@@ -31,7 +74,7 @@ func main() {
 	//TODO: add add all button
 	//h1 logs remove if no logs
 	//add saving logs and deleting.
-		
+	//70s Macros title
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		temp.Execute(w, data)
