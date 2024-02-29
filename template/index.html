@@ -51,5 +51,14 @@
       <h1>Total Fat: {{ .Fat }}</h1>
       <h1>Total Calories: {{ .Calories }}</h1>
     </div>
+
+    <h1>Logs</h1>
+    {{ range .Logs }}
+      <div class="p-3">
+        <h1>Protein: {{ .Protein }}</h1>
+        <h1>Carbs: {{ .Carbs }}</h1>
+        <h1>Fat: {{ .Fat }}</h1>
+      </div>
+    {{ end }}
   </body>
 </html>
