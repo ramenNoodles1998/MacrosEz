@@ -10,55 +10,71 @@
       integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
       crossorigin="anonymous"
     ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .work-sans {
+        font-family: 'Work Sans', sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 300;
+        font-style: normal;
+      }
+    </style>
   </head>
-  <body class="container mx-auto bg-fuchsia-300" id="body">
-    <form
-      class="grid grid-cols-6 gap-2 grid-row-3 p-2"
-      hx-post="/submit"
-      hx-target="#body"
-    >
-      <label for="protein" class="col-span-2">Protein</label>
-      <label for="carbs" class="col-span-2">Carbs</label>
-      <label for="fat" class="col-span-2">Fat</label>
-      <input
-        id="protein"
-        name="protein"
-        type="number"
-        onfocus="this.value=''"
-        value="{{ .ProteinValue }}"
-      />
-      <button type="submit">Add</button>
-      <input
-        id="carbs"
-        name="carbs"
-        type="number"
-        onfocus="this.value=''"
-        value="{{ .CarbsValue }}"
-      />
-      <button type="submit">Add</button>
-      <input
-        id="fat"
-        name="fat"
-        type="number"
-        onfocus="this.value=''"
-        value="{{ .FatValue }}"
-      />
-      <button type="submit">Add</button>
-    </form>
-    <div class="p-3">
-      <h1>Total Protein: {{ .Protein }}</h1>
-      <h1>Total Carbs: {{ .Carbs }}</h1>
-      <h1>Total Fat: {{ .Fat }}</h1>
-      <h1>Total Calories: {{ .Calories }}</h1>
-    </div>
+  <body class="container mx-auto bg-teal-700 work-sans text-white" id="body">
+    <div class="m-2 p-4 bg-slate-500 rounded-lg shadow-lg">
+      <form
+        class="grid grid-cols-9 gap-2 grid-row-3 p-2"
+        hx-post="/submit"
+        hx-target="#body"
+      >
+        <label class="block font-bold mb-2 col-span-3" for="protein">Protein</label>
+        <label class="block font-bold mb-2 col-span-3" for="carbs">Carbs</label>
+        <label class="block font-bold mb-2 col-span-3" for="fat">Fat</label>
+        <input
+          class="col-span-2 block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          id="protein"
+          name="protein"
+          onfocus="this.value=''"
+          value="{{ .ProteinValue }}"
+        />
+        <button class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full" type="submit">Add</button>
+        <input
+          class="col-span-2 block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          id="carbs"
+          name="carbs"
+          onfocus="this.value=''"
+          value="{{ .CarbsValue }}"
+        />
+        <button class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full" type="submit">Add</button>
+        <input
+          class="col-span-2 block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          id="fat"
+          name="fat"
+          onfocus="this.value=''"
+          value="{{ .FatValue }}"
+        />
+        <button class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full" type="submit">Add</button>
+      </form>
+      <div class="grid grid-cols-3 gap-2 p-2">
+        <h1>Total {{ .Protein }}</h1>
+        <h1>Total {{ .Carbs }}</h1>
+        <h1>Total {{ .Fat }}</h1>
+        <h1 class="col-span-3 text-center">Total Calories {{ .Calories }}</h1>
+      </div>
 
-    <h1>Logs</h1>
-    {{ range .Logs }}
-      <div class="p-3">
+      {{ if .Logs }}
+      <div class="grid grid-cols-3 gap-2 p-2">
+        <h1 class="col-span-3 text-center">Logs</h1>
+        {{ range .Logs }}
         <h1>Protein: {{ .Protein }}</h1>
         <h1>Carbs: {{ .Carbs }}</h1>
         <h1>Fat: {{ .Fat }}</h1>
+        {{ end }}
+      </body>
       </div>
-    {{ end }}
-  </body>
+      {{ end }}
+  </div>
 </html>
