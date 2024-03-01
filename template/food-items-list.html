@@ -1,0 +1,8 @@
+<div id="food-items">
+{{ range .FoodItems }}
+<h2>Name {{ .SortKey }}</h2>
+<h2>Protein {{ .Protein}}g</h2>
+<h2>Carbs {{ .Carbs }}g</h2>
+<h2>Fat {{ .Fat }}g</h2>
+{{ end }}
+</div>

@@ -1,0 +1,44 @@
+{{ define "food-items"}}
+<div class="grid grid-cols-subgrid grid-cols-2 gap-2 grid-row-2">
+  <form hx-post="/save-food-item" hx-target="#food-items">
+    <label class="block font-bold mb-2" for="protein"> Name </label>
+    <input
+      class="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      id="name"
+      name="name"
+    />
+    <label class="block font-bold mb-2" for="protein"> Protein </label>
+    <input
+      class="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      id="protein"
+      name="protein"
+    />
+    <label class="block font-bold mb-2" for="carbs"> Carbs </label>
+    <input
+      class="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      id="carbs"
+      name="carbs"
+    />
+    <label class="block font-bold mb-2" for="fat"> Fat </label>
+    <input
+      class="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+      id="fat"
+      name="fat"
+    />
+    <button
+        class="bg-teal-900 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
+        type="submit"
+    >
+        Add
+    </button>
+  </form>
+  <div id="food-items">
+    {{ range .FoodItems }}
+    <h2>Name {{ .SortKey }}</h2>
+    <h2>Protein {{ .Protein}}g</h2>
+    <h2>Carbs {{ .Carbs }}g</h2>
+    <h2>Fat {{ .Fat }}g</h2>
+    {{ end }}
+  </div>
+</div>
+{{ end }}

@@ -1,10 +1,13 @@
 {{ define "form"}}
 <form
-    class="grid grid-cols-9 gap-2 grid-row-3 p-2"
-    hx-post="/submit"
-    hx-target="#body"
+  class="grid grid-cols-9 gap-2 grid-row-3 p-2"
+  hx-post="/submit"
+  hx-target="#body"
 >
-  <label class="block font-bold mb-2 col-span-3" for="protein">Protein</label>
+  <label class="block font-bold mb-2 col-span-3" for="protein">
+    <i class="fa-solid fa-drumstick-bite"></i>
+    Protein
+  </label>
   <label class="block font-bold mb-2 col-span-3" for="carbs">Carbs</label>
   <label class="block font-bold mb-2 col-span-3" for="fat">Fat</label>
 
@@ -13,8 +16,8 @@
     id="protein"
     name="protein"
   />
-  <button 
-    class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
+  <button
+    class="bg-teal-900 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
     type="submit"
   >
     Add
@@ -25,8 +28,8 @@
     id="carbs"
     name="carbs"
   />
-  <button 
-    class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
+  <button
+    class="bg-teal-900 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
     type="submit"
   >
     Add
@@ -38,7 +41,7 @@
     name="fat"
   />
   <button
-    class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
+    class="bg-teal-900 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full"
     type="submit"
   >
     Add

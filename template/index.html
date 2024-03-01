@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
       .work-sans {
         font-family: 'Work Sans', sans-serif;
@@ -24,7 +24,7 @@
       }
     </style>
   </head>
-  <body class="container mx-auto bg-teal-700 work-sans text-white" id="body">
+  <body class="container mx-auto bg-teal-700 text-teal-900 work-sans" id="body">
     <h1 class="p-3 font-bold">MACROS</h1>
     <div class="m-2 p-4 bg-slate-500 rounded-lg shadow-lg">
       <div class="grid grid-cols-3 gap-2 p-2">
@@ -38,21 +38,24 @@
 
       <div class="grid grid-cols-6 gap-2 p-2">
         {{ if .Logs }}
-        <div class="grid grid-cols-subgrid col-span-3 gap-2">
-          <h2 class="col-span-3 font-bold">Logs</h2>
+        <div class="grid grid-cols-subgrid col-span-3 gap-0 border rounded-lg border-teal-700">
+          <h2 class="col-span-3 font-bold p-2">Logs</h2>
+          {{ $odd := true }}
           {{ range .Logs }}
-            <h2>Protein {{ .Protein }}g</h2>
-            <h2>Carbs {{ .Carbs }}g</h2>
-            <h2>Fat {{ .Fat }}g</h2>
+            {{ if $odd}}
+              <h2 class="bg-teal-700 p-2 border border-slate-500">Protein {{ .Protein }}g</h2>
+              <h2 class="bg-teal-700 p-2 border border-slate-500">Carbs {{ .Carbs }}g</h2>
+              <h2 class="bg-teal-700 p-2 border border-slate-500">Fat {{ .Fat }}g</h2>
+            {{ else }}
+              <h2 class="p-2">Protein {{ .Protein }}g</h2>
+              <h2 class="p-2">Carbs {{ .Carbs }}g</h2>
+              <h2 class="p-2">Fat {{ .Fat }}g</h2>
+            {{ end }}
+            {{$odd = not $odd}}
           {{ end }}
         </div>
         {{ end }}
-        <div class="grid grid-cols-subgrid col-span-3 gap-2">
-          <h2 class="col-span-3 font-bold">Food Items</h2>
-          <h2>Protein 0g</h2>
-          <h2>Carbs 0g</h2>
-          <h2>Fat 0g</h2>
-        </div>
+        {{ template "food-items" . }}
       </body>
       </div>
     </body>
